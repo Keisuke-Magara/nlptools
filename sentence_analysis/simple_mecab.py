@@ -1,5 +1,17 @@
-#!py -3.10
+"""MeCabをより簡単に使えるようにするモジュールです。
+
+Requirements
+------------
+- Python 3.6 以上で動作します。
+- mecab-python3 ライブラリが必要です。
+
+Information
+-----------
+Version: 20221122
+Source: https://github.com/Keisuke-Magara/nlptools
+"""
 from dataclasses import dataclass
+from typing import List, Optional
 
 import MeCab
 
@@ -19,13 +31,15 @@ class Morph:
 
     pos1 : str | None
         品詞細分類1
-        （例：'一般'）
+        （例：'代名詞'）
 
     pos2 : str | None
         品詞細分類2
+        （例：'一般'）
 
     pos3 : str | None
         品詞細分類3
+        （例：'場所'）
 
     conjugation_type : str | None
         活用型
@@ -42,16 +56,18 @@ class Morph:
     pronunciation : str | None
         発音
         （例：'タベ'）
+
+    **それぞれの要素に入る値は使用する辞書によって異なります。**
     """
     word: str
-    pos0: str | None
-    pos1: str | None
-    pos2: str | None
-    pos3: str | None
-    conjugation_type: str | None
-    conjugation: str | None
-    stem_form: str | None
-    pronunciation: str | None
+    pos0: Optional[str]
+    pos1: Optional[str]
+    pos2: Optional[str]
+    pos3: Optional[str]
+    conjugation_type: Optional[str]
+    conjugation: Optional[str]
+    stem_form: Optional[str]
+    pronunciation: Optional[str]
 
 
 class MeCabAgent:
@@ -59,18 +75,40 @@ class MeCabAgent:
 
     Features
     --------
-    ・MeCabの処理結果をdataclassに格納し、アクセスしやすくしています。
+    - MeCabの処理結果をdataclassに格納し、アクセスしやすくしています。
 
-    ・EOSや空文字('')の除去を行っています。
+    - EOSや空文字('')の除去を行っています。
+
+    - Singleton デザインパターンを採用して、重いインスタンス生成何度も行いにくくしています。
+        （`MeCabAgent.multiple_instance` で変更できます。）
+
+    Attributes
+    ----------
+    multiple_instance : bool
+        `True` に設定すると、通常通りインスタンスを複数作成できます。
+
+        `False` に設定すると、何度インスタンス生成を行っても同じインスタンスを使用します。
+
+        デフォルトは `False` です。
 
     Dependencies
     ------------
-    ・コンピュータにMeCabがインストールされ、プログラムからアクセス可能である必要があります。
+    - コンピュータにMeCabがインストールされ、プログラムからアクセス可能である必要があります。
 
-    ・ `mecab-python3` ライブラリがインストールされている必要があります。
+    - `mecab-python3` ライブラリがインストールされている必要があります。
 
-    ・同ライブラリの中の Morph dataclassを使用して結果を格納します。
+    - 同ライブラリの中の Morph dataclass を使用して結果を格納します。
     """
+
+    multiple_instance: bool = False  # Singletonパターンの設定
+
+    def __new__(cls):
+        if cls.multiple_instance is False:
+            if not hasattr(cls, '_instance'):
+                cls._instance = super().__new__(cls)
+            return cls._instance
+        else:
+            return super().__new__(cls)
 
     def __init__(self, dict_path=None) -> None:
         """
@@ -85,7 +123,7 @@ class MeCabAgent:
         self.tagger = MeCab.Tagger(
             r"-d ".join(dict_path) if dict_path is not None else '')
 
-    def parse(self, sentence: str) -> list[Morph]:
+    def parse(self, sentence: str) -> List[Morph]:
         """1行の文字列をMeCabで解析します。
 
         Parameters
@@ -98,6 +136,7 @@ class MeCabAgent:
         list[Morph]
             形態素ごとにそれぞれ Morph クラスに情報が格納されています。
             （アクセス例：`mecab_agent.parse()[0].word`）
+            詳細は Morph クラスの DocString を参照してください。
         """
         result: list[Morph] = []
         if sentence is not None:
@@ -105,7 +144,6 @@ class MeCabAgent:
         words: list[str] = self.tagger.parse(self.input).split('\n')
         words.remove('EOS')
         words.remove('')
-        # print(words)
         for w in words:
             surface, others = w.split('\t')
             info = others.split(',')
@@ -141,7 +179,7 @@ class MeCabAgent:
 
 
 if __name__ == '__main__':
-    # ----- 名詞の出現頻度をカウントするプログラム -----
+    # ----- 名詞の出現頻度をカウントするサンプルプログラム -----
 
     # 例文
     sentences = "庭を東へ二十歩に行き尽つくすと、" \
@@ -153,7 +191,7 @@ if __name__ == '__main__':
     appear_dict = {}
 
     # 出現した名詞の出現回数をカウント
-    mecab = MeCabAgent()  # MeCabAgentのインスタンス生成は重いので、毎回行わないようにする
+    mecab = MeCabAgent()  # インスタンス生成処理は重いので、毎回行わないようにする
     result = mecab.parse(sentences)
     for w in result:
         if w.pos0 == '名詞':
@@ -162,4 +200,5 @@ if __name__ == '__main__':
             except KeyError:
                 appear_dict[w.word] = 1
 
+    # 辞書を表示
     print(appear_dict)
