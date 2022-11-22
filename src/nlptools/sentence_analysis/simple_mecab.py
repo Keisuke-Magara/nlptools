@@ -4,11 +4,6 @@ Requirements
 ------------
 - Python 3.6 以上で動作します。
 - mecab-python3 ライブラリが必要です。
-
-Information
------------
-Version: 20221122
-Source: https://github.com/Keisuke-Magara/nlptools
 """
 from dataclasses import dataclass
 from typing import List, Optional
