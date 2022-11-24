@@ -96,6 +96,7 @@ class MeCabAgent:
     """
 
     multiple_instance: bool = False  # Singletonパターンの設定
+    _none_pattern: List[str] = ['', ' ', '*']  # 該当なしのパターン
 
     def __new__(cls):
         if cls.multiple_instance is False:
@@ -105,7 +106,7 @@ class MeCabAgent:
         else:
             return super().__new__(cls)
 
-    def __init__(self, dict_path=None) -> None:
+    def __init__(self, dict_path: Optional[str] = None) -> None:
         """
         Parameters
         ----------
@@ -143,14 +144,21 @@ class MeCabAgent:
             surface, others = w.split('\t')
             info = others.split(',')
             r = Morph(surface,
-                      info[0] if len(info) > 0 and info[0] != '' else None,
-                      info[1] if len(info) > 1 and info[1] != '' else None,
-                      info[2] if len(info) > 2 and info[2] != '' else None,
-                      info[3] if len(info) > 3 and info[3] != '' else None,
-                      info[4] if len(info) > 4 and info[4] != '' else None,
-                      info[5] if len(info) > 5 and info[5] != '' else None,
-                      info[7] if len(info) > 7 and info[7] != '' else None,
-                      info[9] if len(info) > 9 and info[9] != '' else None)
+                      info[0] if len(
+                          info) > 0 and info[0] not in self._none_pattern else None,
+                      info[1] if len(
+                          info) > 1 and info[1] not in self._none_pattern else None,
+                      info[2] if len(
+                          info) > 2 and info[2] not in self._none_pattern else None,
+                      info[3] if len(
+                          info) > 3 and info[3] not in self._none_pattern else None,
+                      info[4] if len(
+                          info) > 4 and info[4] not in self._none_pattern else None,
+                      info[5] if len(
+                          info) > 5 and info[5] not in self._none_pattern else None,
+                      info[7] if len(
+                          info) > 7 and info[7] not in self._none_pattern else None,
+                      info[9] if len(info) > 9 and info[9] not in self._none_pattern else None)
             result.append(r)
         return result
 
