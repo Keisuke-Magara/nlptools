@@ -1,12 +1,13 @@
-"""MeCabをより簡単に使えるようにするモジュールです。
+"""形態素解析ライブラリMeCabを簡単に使えるようにするモジュールです。
 
 Requirements
 ------------
 - Python 3.6 以上で動作します。
-- mecab-python3 ライブラリが必要です。
+- コンピュータに MeCab がインストールされている必要があります。
+- mecab ライブラリが必要です。
 """
 from dataclasses import dataclass
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 import MeCab
 
@@ -52,6 +53,9 @@ class Morph:
         発音
         （例：'タベ'）
 
+    unknown : str | None
+        正常に抽出できなかった場合はここに入ります。
+
     **それぞれの要素に入る値は使用する辞書によって異なります。**
     """
     word: str
@@ -63,9 +67,14 @@ class Morph:
     conjugation: Optional[str]
     stem_form: Optional[str]
     pronunciation: Optional[str]
+    unknown: Optional[str]
 
 
-class MeCabAgent:
+class NotSupportedError(Exception):
+    pass
+
+
+class MeCabHelper:
     """MeCabをより簡単に使えるようにするラッパークラスです。
 
     Features
@@ -98,26 +107,50 @@ class MeCabAgent:
     multiple_instance: bool = False  # Singletonパターンの設定
     _none_pattern: List[str] = ['', ' ', '*']  # 該当なしのパターン
 
-    def __new__(cls):
-        if cls.multiple_instance is False:
-            if not hasattr(cls, '_instance'):
-                cls._instance = super().__new__(cls)
-            return cls._instance
-        else:
-            return super().__new__(cls)
+    # def __new__(cls):
+    #     if cls.multiple_instance is False:
+    #         if not hasattr(cls, '_instance'):
+    #             cls._instance = super().__new__(cls)
+    #         return cls._instance
+    #     else:
+    #         return super().__new__(cls)
 
-    def __init__(self, dict_path: Optional[str] = None) -> None:
+    def __init__(self, args: str = '', dict_type: Literal['ipadic', 'neologd', 'unidic'] = 'ipadic') -> None:
         """
         Parameters
         ----------
-        dict_path : str, optional
-            MeCab実行時に参照する辞書のパスを指定してください。
-            （例：`MeCab("./dict_file")`と書くと、
-            `MeCab -d ./dict_file`をコマンドラインで指定したことと同義になります。）
-            `None` を指定すると、デフォルト辞書を使用します。
+        args : str, optional
+            MeCabの実行時引数を入力してください。
+            ただし以下の引数は入力しないでください。
+
+            `-Owakati`
+
+            デフォルトは引数なしです。
+
+        dict_type : Literal['ipadic, 'neologd', 'unidic'], optional
+            MeCabで使用する辞書の表示タイプを選択してください。
+            - 'ipadic' : IPA辞書のデフォルト表示タイプ
+            - 'neologd' : mecab-ipadic-NEologdのデフォルト表示タイプ
+            - 'unidic' : UniDicのデフォルト表示タイプ
+
+            辞書の出力と表示タイプが一致していない場合、正しく結果を抽出できません。
+            デフォルトは 'ipadic' です。
+
+        Raises
+        ------
+        NotSupportedError
+            argsに禁止されている引数が存在する場合に発生します。
         """
-        self.tagger = MeCab.Tagger(
-            r"-d ".join(dict_path) if dict_path is not None else '')
+        banned_args = (r'-Owakati')
+        def ins_f(x): return x in banned_args
+        if not all(map(ins_f, banned_args)):
+            self.tagger = MeCab.Tagger(args)
+            self.parse_type = dict_type
+        else:
+            raise NotSupportedError(
+                "Invalid arguments was detected.\n"
+                f"You can't use these arguments.\n{banned_args}\n"
+                "Notes: If you want to do \"wakati gaki\", please try wakati_gaki method.")
 
     def parse(self, sentence: str) -> List[Morph]:
         """1行の文字列をMeCabで解析します。
@@ -136,31 +169,43 @@ class MeCabAgent:
         """
         result: list[Morph] = []
         if sentence is not None:
-            self.input = sentence
-        words: list[str] = self.tagger.parse(self.input).split('\n')
+            self.latest_input = sentence
+        parsed_string = self.tagger.parse(self.latest_input)
+        words: list[str] = parsed_string.split('\n')
         words.remove('EOS')
         words.remove('')
         for w in words:
-            surface, others = w.split('\t')
-            info = others.split(',')
-            r = Morph(surface,
-                      info[0] if len(
-                          info) > 0 and info[0] not in self._none_pattern else None,
-                      info[1] if len(
-                          info) > 1 and info[1] not in self._none_pattern else None,
-                      info[2] if len(
-                          info) > 2 and info[2] not in self._none_pattern else None,
-                      info[3] if len(
-                          info) > 3 and info[3] not in self._none_pattern else None,
-                      info[4] if len(
-                          info) > 4 and info[4] not in self._none_pattern else None,
-                      info[5] if len(
-                          info) > 5 and info[5] not in self._none_pattern else None,
-                      info[7] if len(
-                          info) > 7 and info[7] not in self._none_pattern else None,
-                      info[9] if len(info) > 9 and info[9] not in self._none_pattern else None)
-            result.append(r)
+            result.append(self._extract(w))
         return result
+
+    def _extract(self, parsed_word: str) -> Morph:
+        if self.parse_type == 'ipadic':
+            surface, others = parsed_word.split('\t')
+            info = others.split(',')
+            ret = Morph(surface,
+                        info[0] if len(
+                            info) > 0 and info[0] not in self._none_pattern else None,
+                        info[1] if len(
+                            info) > 1 and info[1] not in self._none_pattern else None,
+                        info[2] if len(
+                            info) > 2 and info[2] not in self._none_pattern else None,
+                        info[3] if len(
+                            info) > 3 and info[3] not in self._none_pattern else None,
+                        info[4] if len(
+                            info) > 4 and info[4] not in self._none_pattern else None,
+                        info[5] if len(
+                            info) > 5 and info[5] not in self._none_pattern else None,
+                        info[7] if len(
+                            info) > 7 and info[7] not in self._none_pattern else None,
+                        info[9] if len(
+                            info) > 9 and info[9] not in self._none_pattern else None,
+                        None)
+            return ret
+        else:
+            word, other = parsed_word.split()
+            ret = Morph(word, None, None, None, None,
+                        None, None, None, None, other)
+            return ret
 
     def wakati_gaki(self, sentence: str):
         """文を分かち書きして、リストに格納します。
@@ -181,6 +226,8 @@ class MeCabAgent:
         return wakati_list
 
 
+__all__ = ['Morph', 'MeCabHelper']
+
 if __name__ == '__main__':
     # ----- 名詞の出現頻度をカウントするサンプルプログラム -----
 
@@ -194,7 +241,7 @@ if __name__ == '__main__':
     appear_dict = {}
 
     # 出現した名詞の出現回数をカウント
-    mecab = MeCabAgent()  # インスタンス生成処理は重いので、毎回行わないようにする
+    mecab = MeCabHelper(args="-Owakati")  # インスタンス生成処理は重いので、毎回行わないようにする
     result = mecab.parse(sentences)
     for w in result:
         if w.pos0 == '名詞':
