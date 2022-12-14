@@ -39,7 +39,7 @@ class Scraper:
 
 
 if __name__ == '__main__':
-    url = "https://www.yahoo.co.jp/" # スクレイピングしたいWebサイト(適宜変更)
+    url = "https://www.yahoo.co.jp/"  # スクレイピングしたいWebサイト(適宜変更)
     target_xpath = '/html/body/div/div/main/div[2]/div[1]/article/div/section/div/div[1]/ul'
     # req = requests.get(url)
     # html = req.text
@@ -57,7 +57,7 @@ if __name__ == '__main__':
     #     # for line in r.text_content():
     #     #     p.join(line)
     #     # print(p)
-    
+
     # scraper = Scraper("http://www.example.com/")
     # print(scraper.from_xpath("/html/body/div/p[1]/text()"))
     # print(scraper.from_selector("body > div > p:nth-child(2)"))
@@ -67,4 +67,5 @@ if __name__ == '__main__':
     scraper = Scraper(url)
     print(scraper.from_xpath(a))
     print(scraper.from_xpath(b))
-    print(scraper.from_selector("#tabpanelTopics1 > div > div._2jjSS8r_I9Zd6O9NFJtDN- > ul"))
+    print(scraper.from_selector(
+        "#tabpanelTopics1 > div > div._2jjSS8r_I9Zd6O9NFJtDN- > ul"))
