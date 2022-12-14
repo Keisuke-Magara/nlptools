@@ -6,6 +6,7 @@ Requirements
 - コンピュータに MeCab がインストールされている必要があります。
 - mecab ライブラリが必要です。
 """
+import re
 from dataclasses import dataclass
 from typing import List, Literal, Optional
 
@@ -129,21 +130,21 @@ class MeCabHelper:
 
         dict_type : Literal['ipadic, 'neologd', 'unidic'], optional
             MeCabで使用する辞書の表示タイプを選択してください。
-            - 'ipadic' : IPA辞書のデフォルト表示タイプ
-            - 'neologd' : mecab-ipadic-NEologdのデフォルト表示タイプ
-            - 'unidic' : UniDicのデフォルト表示タイプ
+            - `'ipadic'` : IPA辞書のデフォルト表示タイプ
+            - `'neologd'` : mecab-ipadic-NEologdのデフォルト表示タイプ
+            - `'unidic'` : UniDicのデフォルト表示タイプ
 
             辞書の出力と表示タイプが一致していない場合、正しく結果を抽出できません。
-            デフォルトは 'ipadic' です。
+            デフォルトは `'ipadic'` です。
 
         Raises
         ------
         NotSupportedError
             argsに禁止されている引数が存在する場合に発生します。
         """
-        banned_args = (r'-Owakati')
-        def ins_f(x): return x in banned_args
-        if not all(map(ins_f, banned_args)):
+        banned_args = [r'-Owakati']
+        banned_pattern = '|'.join(banned_args)
+        if not re.findall(banned_pattern, args):
             self.tagger = MeCab.Tagger(args)
             self.parse_type = dict_type
         else:
@@ -241,7 +242,8 @@ if __name__ == '__main__':
     appear_dict = {}
 
     # 出現した名詞の出現回数をカウント
-    mecab = MeCabHelper(args="-Owakati")  # インスタンス生成処理は重いので、毎回行わないようにする
+    # インスタンス生成処理は重いので、毎回行わないようにする
+    mecab = MeCabHelper(args=r"-r c:\progra~2\mecab\etc\mecabrc-u")
     result = mecab.parse(sentences)
     for w in result:
         if w.pos0 == '名詞':
