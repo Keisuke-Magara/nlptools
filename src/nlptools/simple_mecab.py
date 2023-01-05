@@ -196,10 +196,10 @@ class MeCabHelper:
                             info) > 4 and info[4] not in self._none_pattern else None,
                         info[5] if len(
                             info) > 5 and info[5] not in self._none_pattern else None,
+                        info[6] if len(
+                            info) > 6 and info[6] not in self._none_pattern else None,
                         info[7] if len(
                             info) > 7 and info[7] not in self._none_pattern else None,
-                        info[9] if len(
-                            info) > 9 and info[9] not in self._none_pattern else None,
                         None)
             return ret
         else:
