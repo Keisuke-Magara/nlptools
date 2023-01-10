@@ -75,7 +75,7 @@ class NotSupportedError(Exception):
     pass
 
 
-class MeCabHelper:
+class MeCabWrapper:
     """MeCabをより簡単に使えるようにするラッパークラスです。
 
     Features
@@ -84,8 +84,6 @@ class MeCabHelper:
 
     - EOSや空文字('')の除去を行っています。
 
-    - Singleton デザインパターンを採用して、重いインスタンス生成何度も行いにくくしています。
-        （`MeCabAgent.multiple_instance` で変更できます。）
 
     Attributes
     ----------
@@ -96,6 +94,7 @@ class MeCabHelper:
 
         デフォルトは `False` です。
 
+
     Dependencies
     ------------
     - コンピュータにMeCabがインストールされ、プログラムからアクセス可能である必要があります。
@@ -105,18 +104,10 @@ class MeCabHelper:
     - 同ライブラリの中の Morph dataclass を使用して結果を格納します。
     """
 
-    multiple_instance: bool = False  # Singletonパターンの設定
     _none_pattern: List[str] = ['', ' ', '*']  # 該当なしのパターン
 
-    # def __new__(cls):
-    #     if cls.multiple_instance is False:
-    #         if not hasattr(cls, '_instance'):
-    #             cls._instance = super().__new__(cls)
-    #         return cls._instance
-    #     else:
-    #         return super().__new__(cls)
-
-    def __init__(self, args: str = '', dict_type: Literal['ipadic', 'neologd', 'unidic'] = 'ipadic') -> None:
+    def __init__(self, args: str = '',
+                 dict_type: Literal['ipadic', 'neologd', 'unidic'] = 'ipadic') -> None:
         """
         Parameters
         ----------
@@ -202,6 +193,12 @@ class MeCabHelper:
                             info) > 7 and info[7] not in self._none_pattern else None,
                         None)
             return ret
+        elif self.parse_type == 'neologd':
+            raise NotImplementedError(
+                "NEologd dictionary is not supported now. Please wait for version 2.0.0.")
+        elif self.parse_type == 'unidic':
+            raise NotImplementedError(
+                "UniDic dictionary is not supported now. Please wait for version 2.0.0.")
         else:
             word, other = parsed_word.split()
             ret = Morph(word, None, None, None, None,
@@ -227,7 +224,7 @@ class MeCabHelper:
         return wakati_list
 
 
-__all__ = ['Morph', 'MeCabHelper']
+__all__ = ['Morph', 'MeCabWrapper']
 
 if __name__ == '__main__':
     # ----- 名詞の出現頻度をカウントするサンプルプログラム -----
@@ -239,18 +236,18 @@ if __name__ == '__main__':
         "実の熟する時分は起き抜けに背戸せどを出て落ちた奴を拾ってきて、学校で食う。"
 
     # 出現した名詞の辞書
-    appear_dict = {}
+    nouns = {}
 
     # 出現した名詞の出現回数をカウント
     # インスタンス生成処理は重いので、毎回行わないようにする
-    mecab = MeCabHelper(args=r"-r c:\progra~2\mecab\etc\mecabrc-u")
+    mecab = MeCabWrapper(args=r"-r c:\progra~2\mecab\etc\mecabrc-u")
     result = mecab.parse(sentences)
     for w in result:
         if w.pos0 == '名詞':
             try:
-                appear_dict[w.word] = appear_dict[w.word] + 1
+                nouns[w.word] = nouns[w.word] + 1
             except KeyError:
-                appear_dict[w.word] = 1
+                nouns[w.word] = 1
 
     # 辞書を表示
-    print(appear_dict)
+    print(nouns)
