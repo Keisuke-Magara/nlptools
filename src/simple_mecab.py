@@ -222,32 +222,3 @@ class MeCabWrapper:
         for e in self.parse(sentence):
             wakati_list.append(e.word)
         return wakati_list
-
-
-__all__ = ['Morph', 'MeCabWrapper']
-
-if __name__ == '__main__':
-    # ----- 名詞の出現頻度をカウントするサンプルプログラム -----
-
-    # 例文
-    sentences = "庭を東へ二十歩に行き尽つくすと、" \
-        "南上がりにいささかばかりの菜園があって、" \
-        "真中まんなかに栗くりの木が一本立っている。これは命より大事な栗だ。" \
-        "実の熟する時分は起き抜けに背戸せどを出て落ちた奴を拾ってきて、学校で食う。"
-
-    # 出現した名詞の辞書
-    nouns = {}
-
-    # 出現した名詞の出現回数をカウント
-    # インスタンス生成処理は重いので、毎回行わないようにする
-    mecab = MeCabWrapper(args=r"-r c:\progra~2\mecab\etc\mecabrc-u")
-    result = mecab.parse(sentences)
-    for w in result:
-        if w.pos0 == '名詞':
-            try:
-                nouns[w.word] = nouns[w.word] + 1
-            except KeyError:
-                nouns[w.word] = 1
-
-    # 辞書を表示
-    print(nouns)
