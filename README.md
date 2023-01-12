@@ -1,17 +1,21 @@
 # Python package "simple-mecab"
 
-**MeCabをPythonから簡単に使えるようにした、`mecab`パッケージのラッパーです。**
+**MeCabをPythonから簡単に使えるようにした、[mecab](https://pypi.org/project/mecab/)パッケージのラッパーです。**
 
 通常のMeCabよりも使える機能に制限がありますが、辞書の違いを吸収して統一されたアクセス方法で形態素情報にアクセスできます。
 
 ## インストール方法
 
-ターミナルで `pip install git+https://github.com/Keisuke-Magara/simple-mecab.git` を実行し、パッケージをインストールします。
+ターミナルで `pip install simple-mecab` を実行し、パッケージをインストールします。
 
 ## 要件
-- Python 3.7 以上
+- Python 3.7 以上 （`mecab`パッケージが対応しているバージョンのみ）
 - 形態素解析器MeCabとUTF-8辞書がインストール済みで、プログラムからアクセス可能である
-- このパッケージをインストールする際に、pipによって`mecab`パッケージが自動的にインストールされます。
+- `mecab`パッケージをインストールできる環境にあること  
+  （このパッケージをインストールする際に、pipによって`mecab`パッケージが自動的にインストールされます。）  
+  - コンピューターにインストールされたMeCabの対応bitとPythonのアーキテクチャが一致していること  
+    （例：MeCab 32bitとPython 32bit, MeCab 64bitとPython 64bit）
+  - Pythonのバージョンが`mecab`パッケージの対応バージョンであること  
 
 ## 使い方
 
