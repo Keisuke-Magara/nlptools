@@ -8,7 +8,7 @@ description = "Use MeCab with simple code."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [{ name = "Keisuke Magara", email = "Keisuke-Magara.dev@outlook.com"}]
-urls = { source = "https://github.com/Keisuke-Magara/simple-mecab" }
+keywords = ["mecab"]
 classifiers = [
     "Programming Language :: Python :: 3.10",
     "Intended Audience :: Science/Research",
@@ -21,6 +21,8 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.urls]
+repository = "https://github.com/Keisuke-Magara/simple-mecab"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
