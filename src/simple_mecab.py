@@ -71,7 +71,7 @@ class Morph:
     unknown: Optional[str]
 
 
-class NotSupportedError(Exception):
+class InvalidArgumentsError(Exception):
     pass
 
 
@@ -115,7 +115,7 @@ class MeCabWrapper:
             MeCabの実行時引数を入力してください。
             ただし以下の引数は入力しないでください。
 
-            `-Owakati`
+            `-Owakati`, 出力フォーマットを指定するオプション
 
             デフォルトは引数なしです。
 
@@ -133,19 +133,26 @@ class MeCabWrapper:
         NotSupportedError
             argsに禁止されている引数が存在する場合に発生します。
         """
-        banned_args = [r'-Owakati']
+        banned_args = (r'-Owakati',
+                       r'-F', r'--node-format',
+                       r'-U', r'--unk-format',
+                       r'-B', r'--bos-format',
+                       r'-E', r'--eos-format',
+                       r'-S', r'--eon-format',
+                       r'-x', r'--unk-feature')
         banned_pattern = '|'.join(banned_args)
         if not re.findall(banned_pattern, args):
             self.tagger = MeCab.Tagger(args)
             self.parse_type = dict_type
         else:
-            raise NotSupportedError(
-                "Invalid arguments was detected.\n"
-                f"You can't use these arguments.\n{banned_args}\n"
-                "Notes: If you want to do \"wakati gaki\", please try wakati_gaki method.")
+            raise InvalidArgumentsError(
+                "対応しない引数がargsに指定されました。\n"
+                "MeCabWrapperのargsでは以下に示す引数を使用することはできません。\n"
+                f"{banned_args}\n"
+                "[ヒント] もし分かち書きをしたいのであれば、wakati_gaki関数を使用することができます。")
 
     def parse(self, sentence: str) -> List[Morph]:
-        """1行の文字列をMeCabで解析します。
+        """日本語の文字列をMeCabで解析します。
 
         Parameters
         ----------
