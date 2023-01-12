@@ -17,7 +17,7 @@ classifiers = [
 ]
 requires-python = ">=3.6"
 dependencies = [
-    "mecab"
+    "mecab>=0.996"
 ]
 dynamic = ["version"]
 
