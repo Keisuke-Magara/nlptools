@@ -7,7 +7,7 @@ name = "simple-mecab"
 description = "Use MeCab with simple code."
 readme = "README.md"
 license = {file = "LICENSE"}
-authors = [{ name = "author1" }]
+authors = [{ name = "Keisuke Magara", email = "Keisuke-Magara.dev@outlook.com"}]
 urls = { source = "https://github.com/Keisuke-Magara/simple-mecab" }
 classifiers = [
     "Programming Language :: Python :: 3.10",
