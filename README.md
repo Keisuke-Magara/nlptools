@@ -9,7 +9,7 @@
 ターミナルで `pip install git+https://github.com/Keisuke-Magara/simple-mecab.git` を実行し、パッケージをインストールします。
 
 ## 要件
-- Python 3.6 以上
+- Python 3.7 以上
 - 形態素解析器MeCabとUTF-8辞書がインストール済みで、プログラムからアクセス可能である
 - このパッケージをインストールする際に、pipによって`mecab`パッケージが自動的にインストールされます。
 
