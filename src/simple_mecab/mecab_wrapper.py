@@ -3,7 +3,7 @@ from typing import List, Literal
 
 import MeCab
 
-from simple_mecab.exceptions import InvalidArgumentsError
+from simple_mecab.exceptions import InvalidArgumentError
 from simple_mecab.morpheme import Morpheme
 
 
@@ -62,7 +62,7 @@ class MeCabWrapper:
 
         Raises
         ------
-        NotSupportedError
+        InvalidArgumentError
             argsに禁止されている引数が存在する場合に発生します。
         """
         banned_args = (r'-Owakati',
@@ -77,7 +77,7 @@ class MeCabWrapper:
             self.tagger = MeCab.Tagger(args)
             self.parse_type = dict_type
         else:
-            raise InvalidArgumentsError(
+            raise InvalidArgumentError(
                 "対応しない引数がargsに指定されました。\n"
                 "MeCabWrapperのargsでは以下に示す引数を使用することはできません。\n"
                 f"{banned_args}\n"
