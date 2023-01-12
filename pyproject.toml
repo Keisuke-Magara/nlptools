@@ -17,7 +17,7 @@ classifiers = [
 ]
 requires-python = ">=3.6"
 dependencies = [
-    "mecab"
+    "mecab>=0.996"
 ]
 dynamic = ["version"]
 
@@ -30,5 +30,5 @@ version = {attr = "setuptools_scm.get_version"}
 
 [tool.setuptools_scm]
 write_to = "src/_version.py"
-# version_scheme = "python-simplified-semver"
+version_scheme = "post-release"
 local_scheme = "no-local-version"
