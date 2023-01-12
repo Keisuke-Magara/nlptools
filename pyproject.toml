@@ -30,5 +30,5 @@ version = {attr = "setuptools_scm.get_version"}
 
 [tool.setuptools_scm]
 write_to = "src/_version.py"
-version_scheme = "python-simplified-semver"
+# version_scheme = "python-simplified-semver"
 local_scheme = "no-local-version"
