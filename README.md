@@ -21,7 +21,7 @@
 
 ### MeCabWrapperのインスタンスを入手する
 ```python
-mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type="{dict_type_literal})
+mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type="{dict_type Literal}")
 ```
 で入手できます。
 
@@ -37,11 +37,11 @@ mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type="{dict_type_lit
 
 #### 引数dict_typeについて
 `dict_type`には以下の文字列のいずれかを指定してください。[**`ipadic`以外はまだ実装されていません。**]
-| dict_type | 使用辞書                                        | 
-| :-------- | :--------------------------------------------- | 
-| ipadic    | IPA辞書 or 出力形式が同様の辞書                  | 
-| ~~neologd~~   | ~~mecab-ipadic-NEologd辞書 or 出力形式が同様の辞書~~ | 
-| ~~unidic~~    | ~~UniDic辞書 or 出力形式が同様の辞書~~               | 
+| dict_type   | 使用辞書                                             |
+| :---------- | :--------------------------------------------------- |
+| ipadic      | IPA辞書 or 出力形式が同様の辞書                      |
+| ~~neologd~~ | ~~mecab-ipadic-NEologd辞書 or 出力形式が同様の辞書~~ |
+| ~~unidic~~  | ~~UniDic辞書 or 出力形式が同様の辞書~~               |
 
 何も指定しないと`'ipadic'`が使用されます。
 
@@ -52,30 +52,30 @@ result = mecab.parse("文")
 ```
 で、`"文"`の形態素解析結果を入手できます。
 
-形態素解析結果は各形態素のlist形式になっていて、それぞれの要素は形態素の`Morph`クラスのインスタンスです。
+形態素解析結果は各形態素のlist形式になっていて、それぞれの要素は形態素の`Morpheme`クラスのインスタンスです。
 
-#### Morphクラスの構成
-`Morph`クラスはPythonの`dataclass`として定義されており、形態素とその属性が格納されています。
+#### Morphemeクラスの構成
+`Morpheme`クラスはPythonの`dataclass`として定義されており、形態素とその属性が格納されています。
 
-例えば変数`r`にある形態素の`Morph`クラスのインスタンスが格納されているとき、
+例えば変数`r`にある形態素の`Morpheme`クラスのインスタンスが格納されているとき、
 ```python
 {MeCab辞書の属性の値} = r.{Morphの属性名}
 ```
 で、属性の値を知ることができます。
 
 定義されている属性は以下のとおりです。
-| MeCab辞書の属性 | Morphの属性名    | 出力例                 | 
-| ----------------- | ---------------- | ---------------------- | 
-| 形態素そのもの    | word             | 渋谷, 行っ             | 
-| 品詞              | pos0             | 名詞, 動詞             | 
-| 品詞細分類1       | pos1             | 固有名詞, 自立         | 
-| 品詞細分類2       | pos2             | 地域, None             | 
-| 品詞細分類3       | pos3             | 一般, None             | 
-| 活用型            | conjugation_type | None, 五段・カ行促音便 | 
-| 活用形            | conjugation      | None, 連用タ接続       | 
-| 原型              | stem_form        | 渋谷, 行く             | 
-| 発音              | pronunciation    | シブヤ, イッ           | 
-| <分類失敗時>      | unknown          | None, None             | 
+| MeCab辞書の属性 | Morphの属性名    | 出力例                 |
+| --------------- | ---------------- | ---------------------- |
+| 形態素そのもの  | token             | 渋谷, 行っ             |
+| 品詞            | pos0             | 名詞, 動詞             |
+| 品詞細分類1     | pos1             | 固有名詞, 自立         |
+| 品詞細分類2     | pos2             | 地域, None             |
+| 品詞細分類3     | pos3             | 一般, None             |
+| 活用型          | conjugation_type | None, 五段・カ行促音便 |
+| 活用形          | conjugation      | None, 連用タ接続       |
+| 原型            | stem_form        | 渋谷, 行く             |
+| 発音            | pronunciation    | シブヤ, イッ           |
+| <分類失敗時>    | unknown          | None, None             |
 
 すべての属性は、存在するときはその値の文字列、存在しない場合には`None`が格納されます。
 
@@ -89,11 +89,11 @@ wakati_result = mecab.wakati_gaki("文")
 ```
 によって文を形態素ごとに分割できます。
 
-`wakati_result`はそれぞれの形態素を要素としたlistになっています。
+`wakati_result`はそれぞれの形態素をスペースで区切った文字列になっています。
 
 
 ## 例外
-`simple_mecab.InvalidArgumentsError` : このパッケージがサポートしていない引数が`MeCabWrapper()`の`args`に指定された場合に発生します。対応しない引数を削除して再度お試しください。
+`simple_mecab.InvalidArgumentError` : このパッケージがサポートしていない引数が`MeCabWrapper()`の`args`に指定された場合に発生します。対応しない引数を削除して再度お試しください。
 
 ## サンプル
 以下ではサンプルとして "渋谷に行った。" という文を形態素解析・分かち書きした際のPythonコードと結果を示します。
@@ -107,11 +107,11 @@ target_sentence = "渋谷に行った。"
 mecab: simple_mecab.MeCabWrapper = simple_mecab.MeCabWrapper(
     dict_type='ipadic')
 
-result: list[simple_mecab.Morph] = mecab.parse(target_sentence)
+result: list[simple_mecab.Morpheme] = mecab.parse(target_sentence)
 
 # 各形態素について属性を表示する
 for r in result:
-    print("形態素そのもの", r.word)
+    print("形態素そのもの", r.token)
     print("品詞", r.pos0)
     print("品詞細分類1", r.pos1)
     print("品詞細分類2", r.pos2)
@@ -124,12 +124,9 @@ for r in result:
     print("\n")
 
 # 文を分かち書きする
-wakati_result = mecab.wakati_gaki(target_sentence)
-print("文を形態素ごとに分けると以下のようになります。")
-print(wakati_result)
+wakati_result: str = mecab.wakati_gaki(target_sentence)
 print("文をスペース区切りの分かち書きにします。")
-print(' '.join(wakati_result))
-
+print(wakati_result)
 ```
 
 [出力]
@@ -194,8 +191,6 @@ print(' '.join(wakati_result))
 <分類失敗時> None
 
 
-文を形態素ごとに分けると以下のようになります。
-['渋谷', 'に', '行っ', 'た', '。']
 文をスペース区切りの分かち書きにします。
 渋谷 に 行っ た 。
 ```
