@@ -43,7 +43,7 @@ mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type="{dict_type Lit
 | ~~neologd~~ | ~~mecab-ipadic-NEologd辞書 or 出力形式が同様の辞書~~ |
 | ~~unidic~~  | ~~UniDic辞書 or 出力形式が同様の辞書~~               |
 
-何も指定しないと`'ipadic'`が使用されます。
+何も指定しないと`ipadic`が使用されます。
 
 
 ### 日本語の文を形態素解析する
@@ -59,12 +59,12 @@ result = mecab.parse("文")
 
 例えば変数`r`にある形態素の`Morpheme`クラスのインスタンスが格納されているとき、
 ```python
-{MeCab辞書の属性の値} = r.{Morphの属性名}
+{MeCab辞書の属性の値} = r.{Morphemeの属性名}
 ```
 で、属性の値を知ることができます。
 
-定義されている属性は以下のとおりです。
-| MeCab辞書の属性 | Morphの属性名    | 出力例                 |
+サポートされている属性は以下のとおりです。
+| MeCab辞書の属性 | Morphemeの属性名    | 出力例                 |
 | --------------- | ---------------- | ---------------------- |
 | 形態素そのもの  | token             | 渋谷, 行っ             |
 | 品詞            | pos0             | 名詞, 動詞             |
