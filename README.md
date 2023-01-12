@@ -21,7 +21,7 @@
 
 ### MeCabWrapperのインスタンスを入手する
 ```python
-mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type="{dict_type_literal}")
+mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type="{dict_type Literal}")
 ```
 で入手できます。
 
