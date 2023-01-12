@@ -15,7 +15,7 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Natural Language :: Japanese"
 ]
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 dependencies = [
     "mecab>=0.996"
 ]
@@ -30,5 +30,5 @@ version = {attr = "setuptools_scm.get_version"}
 
 [tool.setuptools_scm]
 write_to = "src/_version.py"
-version_scheme = "post-release"
+version_scheme = "guess-next-dev"
 local_scheme = "no-local-version"
