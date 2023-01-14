@@ -244,3 +244,27 @@ class Morpheme:
         格納される値は使用する辞書によって異なります。
         """
         return self.__unknown
+
+    def __str__(self) -> str:
+        return (f"Morpheme(token={self.__token.__repr__()}, "
+                f"pos0={self.__pos0.__repr__()}, "  # type: ignore
+                f"pos1={self.__pos1.__repr__()}, "  # type: ignore
+                f"pos2={self.__pos2.__repr__()}, "  # type: ignore
+                f"pos3={self.__pos3.__repr__()}, "  # type: ignore
+                f"conjugation_type={self.__conjugation_type.__repr__()}, "  # type: ignore
+                f"conjugation={self.__conjugation.__repr__()}, "  # type: ignore
+                f"stem_form={self.__stem_form.__repr__()}, "  # type: ignore
+                f"pronunciation={self.__pronunciation.__repr__()}, "  # type: ignore
+                f"unknown={self.__unknown.__repr__()})")  # type: ignore
+
+    def __repr__(self) -> str:
+        return (f"Morpheme({self.__token.__repr__()}, "
+                f"{self.__pos0.__repr__()}, "  # type: ignore
+                f"{self.__pos1.__repr__()}, "  # type: ignore
+                f"{self.__pos2.__repr__()}, "  # type: ignore
+                f"{self.__pos3.__repr__()}, "  # type: ignore
+                f"{self.__conjugation_type.__repr__()}, "  # type: ignore
+                f"{self.__conjugation.__repr__()}, "  # type: ignore
+                f"{self.__stem_form.__repr__()}, "  # type: ignore
+                f"{self.__pronunciation.__repr__()}, "  # type: ignore
+                f"{self.__unknown.__repr__()})")  # type: ignore

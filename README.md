@@ -21,7 +21,7 @@
 
 ### MeCabWrapperのインスタンスを入手する
 ```python
-mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type="{dict_type Literal}")
+mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type='{dict_type Literal}')
 ```
 で入手できます。
 
@@ -58,15 +58,15 @@ result = mecab.parse("文")
 `Morpheme`クラスはPythonの`dataclass`として定義されており、形態素とその属性が格納されています。
 
 例えば変数`r`にある形態素の`Morpheme`クラスのインスタンスが格納されているとき、
-```python
-{MeCab辞書の属性の値} = r.{Morphemeの属性名}
+```
+{MeCabの項目の値} = r.{Morphemeのproperty}
 ```
 で、属性の値を知ることができます。
 
 サポートされている属性は以下のとおりです。
-| MeCab辞書の属性 | Morphemeの属性名    | 出力例                 |
+| MeCabの項目 | Morphemeのproperty    | 出力例                 |
 | --------------- | ---------------- | ---------------------- |
-| 形態素そのもの  | token             | 渋谷, 行っ             |
+| 形態素の文字列  | token             | 渋谷, 行っ             |
 | 品詞            | pos0             | 名詞, 動詞             |
 | 品詞細分類1     | pos1             | 固有名詞, 自立         |
 | 品詞細分類2     | pos2             | 地域, None             |
@@ -77,7 +77,9 @@ result = mecab.parse("文")
 | 発音            | pronunciation    | シブヤ, イッ           |
 | <分類失敗時>    | unknown          | None, None             |
 
-すべての属性は、存在するときはその値の文字列、存在しない場合には`None`が格納されます。
+`token`は常に文字列が格納されます。
+
+それ以外の属性は、存在するときはその値の文字列、存在しない場合には`None`が格納されます。
 
 `unknown`にはMeCabの出力を正しく分類できなかった際に、MeCabの出力結果が文字列としてそのまま格納されます。通常は`None`です。MeCabの辞書を正しく分類するために、[`dict_type`](#引数dict_typeについて)は正しく指定してください。
 
@@ -104,14 +106,13 @@ import simple_mecab
 
 target_sentence = "渋谷に行った。"
 
-mecab: simple_mecab.MeCabWrapper = simple_mecab.MeCabWrapper(
-    dict_type='ipadic')
+mecab: simple_mecab.MeCabWrapper = simple_mecab.MeCabWrapper(args=r"-r C:\PROGRA~2\MeCab\etc\mecabrc", dict_type='ipadic')
 
 result: list[simple_mecab.Morpheme] = mecab.parse(target_sentence)
 
 # 各形態素について属性を表示する
 for r in result:
-    print("形態素そのもの", r.token)
+    print("形態素", r.token)
     print("品詞", r.pos0)
     print("品詞細分類1", r.pos1)
     print("品詞細分類2", r.pos2)
@@ -121,7 +122,7 @@ for r in result:
     print("原型", r.stem_form)
     print("発音", r.pronunciation)
     print("<分類失敗時>", r.unknown)
-    print("\n")
+    print('\n')
 
 # 文を分かち書きする
 wakati_result: str = mecab.wakati_gaki(target_sentence)
@@ -131,7 +132,7 @@ print(wakati_result)
 
 [出力]
 ```
-形態素そのもの 渋谷
+形態素 渋谷
 品詞 名詞
 品詞細分類1 固有名詞
 品詞細分類2 地域
@@ -143,7 +144,7 @@ print(wakati_result)
 <分類失敗時> None
 
 
-形態素そのもの に
+形態素 に
 品詞 助詞
 品詞細分類1 格助詞
 品詞細分類2 一般
@@ -155,7 +156,7 @@ print(wakati_result)
 <分類失敗時> None
 
 
-形態素そのもの 行っ
+形態素 行っ
 品詞 動詞
 品詞細分類1 自立
 品詞細分類2 None
@@ -167,7 +168,7 @@ print(wakati_result)
 <分類失敗時> None
 
 
-形態素そのもの た
+形態素 た
 品詞 助動詞
 品詞細分類1 None
 品詞細分類2 None
@@ -179,7 +180,7 @@ print(wakati_result)
 <分類失敗時> None
 
 
-形態素そのもの 。
+形態素 。
 品詞 記号
 品詞細分類1 句点
 品詞細分類2 None
