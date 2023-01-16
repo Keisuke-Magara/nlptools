@@ -167,25 +167,30 @@ class MeCabWrapper:
 
     def __extract(self, parsed_word: str) -> Morpheme:
         if self.__dict_type == 'ipadic':
-            surface, others = parsed_word.split('\t')
-            info = others.split(',')
+            surface, features = parsed_word.split('\t')
+            features_list = features.split(',')
+            pronunciation = None
+            if len(features_list) > 7:
+                pronunciation = [features_list[7]]
+                if len(features_list) > 8 and features_list[7] != features_list[8]:
+                    pronunciation.append(features_list[8])
+                pronunciation = tuple(pronunciation)
             ret = Morpheme(surface,
-                           info[0] if len(
-                               info) > 0 and info[0] not in self.__none_pattern else None,
-                           info[1] if len(
-                               info) > 1 and info[1] not in self.__none_pattern else None,
-                           info[2] if len(
-                               info) > 2 and info[2] not in self.__none_pattern else None,
-                           info[3] if len(
-                               info) > 3 and info[3] not in self.__none_pattern else None,
-                           info[4] if len(
-                               info) > 4 and info[4] not in self.__none_pattern else None,
-                           info[5] if len(
-                               info) > 5 and info[5] not in self.__none_pattern else None,
-                           info[6] if len(
-                               info) > 6 and info[6] not in self.__none_pattern else None,
-                           info[7] if len(
-                               info) > 7 and info[7] not in self.__none_pattern else None,
+                           features_list[0] if len(
+                               features_list) > 0 and features_list[0] not in self.__none_pattern else None,
+                           features_list[1] if len(
+                               features_list) > 1 and features_list[1] not in self.__none_pattern else None,
+                           features_list[2] if len(
+                               features_list) > 2 and features_list[2] not in self.__none_pattern else None,
+                           features_list[3] if len(
+                               features_list) > 3 and features_list[3] not in self.__none_pattern else None,
+                           features_list[4] if len(
+                               features_list) > 4 and features_list[4] not in self.__none_pattern else None,
+                           features_list[5] if len(
+                               features_list) > 5 and features_list[5] not in self.__none_pattern else None,
+                           features_list[6] if len(
+                               features_list) > 6 and features_list[6] not in self.__none_pattern else None,
+                           pronunciation,
                            None)
             return ret
         elif self.__dict_type == 'unidic':
