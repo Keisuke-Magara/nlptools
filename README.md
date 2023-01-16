@@ -63,22 +63,25 @@ result = mecab.parse("文")
 で、属性の値を知ることができます。
 
 サポートされている属性は以下のとおりです。
-| MeCabの項目 | Morphemeのproperty    | 出力例                 |
-| --------------- | ---------------- | ---------------------- |
-| 形態素の文字列  | token             | 渋谷, 行っ             |
-| 品詞            | pos0             | 名詞, 動詞             |
-| 品詞細分類1     | pos1             | 固有名詞, 自立         |
-| 品詞細分類2     | pos2             | 地域, None             |
-| 品詞細分類3     | pos3             | 一般, None             |
-| 活用型          | conjugation_type | None, 五段・カ行促音便 |
-| 活用形          | conjugation      | None, 連用タ接続       |
-| 原型            | stem_form        | 渋谷, 行く             |
-| 発音            | pronunciation    | シブヤ, イッ           |
-| <分類失敗時>    | unknown          | None, None             |
+| MeCabの項目    | Morphemeのproperty | propertyのtype         | 出力例                                 | 
+| -------------- | ------------------ | ---------------------- | -------------------------------------- | 
+| 形態素の文字列 | token              | `str`                  | '東京', '行っ'                         | 
+| 品詞           | pos0               | `str` or `None`        | '名詞', '動詞'                         | 
+| 品詞細分類1    | pos1               | `str` or `None`        | '固有名詞', '自立'                     | 
+| 品詞細分類2    | pos2               | `str` or `None`        | '地域', None                           | 
+| 品詞細分類3    | pos3               | `str` or `None`        | '一般', None                           | 
+| 活用型         | conjugation_type   | `str` or `None`        | None, '五段・カ行促音便'               | 
+| 活用形         | conjugation        | `str` or `None`        | None, '連用タ接続'                     | 
+| 原型           | stem_form          | `str` or `None`        | '東京', '行く'                         | 
+| 発音           | pronunciation      | `tuple[str]` or `None` | ('トウキョウ', 'トーキョー'), ('イッ') | 
+| <分類失敗時>   | unknown            | `str` or `None`        | None, None                             | 
 
 `token`は常に文字列が格納されます。
 
 それ以外の属性は、存在するときはその値の文字列、存在しない場合には`None`が格納されます。
+
+`pronunciation`のみ、発音が1つしかない場合でもタプルが格納されるため、`r.pronunciation[0]`などでアクセスしてください。  
+（IPA辞書の場合、MeCabの出力した発音2種がどちらも異なる場合にのみ、タプルの要素が2つになります。）
 
 `unknown`にはMeCabの出力を正しく分類できなかった際に、MeCabの出力結果が文字列としてそのまま格納されます。通常は`None`です。MeCabの辞書を正しく分類するために、[`dict_type`](#引数dict_typeについて)は正しく指定してください。
 
