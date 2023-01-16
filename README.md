@@ -39,9 +39,8 @@ mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type='{dict_type Lit
 `dict_type`には以下の文字列のいずれかを指定してください。[**`ipadic`以外はまだ実装されていません。**]
 | dict_type   | 使用辞書                                             |
 | :---------- | :--------------------------------------------------- |
-| ipadic      | IPA辞書 or 出力形式が同様の辞書                      |
-| ~~neologd~~ | ~~mecab-ipadic-NEologd辞書 or 出力形式が同様の辞書~~ |
-| ~~unidic~~  | ~~UniDic辞書 or 出力形式が同様の辞書~~               |
+| ipadic      | IPA辞書, mecab-ipadic-NEologd辞書 or 出力形式が同様の辞書                      |
+| ~~unidic~~  | ~~UniDic辞書 or 出力形式が同様の辞書~~ (version 2.0で対応予定)              |
 
 何も指定しないと`ipadic`が使用されます。
 

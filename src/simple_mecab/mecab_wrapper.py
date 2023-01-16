@@ -47,7 +47,7 @@ class MeCabWrapper:
                      r'-x', r'--unk-feature')
 
     def __init__(self, args: str = '',
-                 dict_type: Literal['ipadic', 'neologd', 'unidic'] = 'ipadic') -> None:
+                 dict_type: Literal['ipadic', 'unidic'] = 'ipadic') -> None:
         """
         Parameters
         ----------
@@ -59,10 +59,9 @@ class MeCabWrapper:
 
             デフォルトは引数なしです。
 
-        dict_type : Literal['ipadic, 'neologd', 'unidic'], optional
+        dict_type : Literal['ipadic, 'unidic'], optional
             MeCabで使用する辞書の表示タイプを選択してください。
             - `'ipadic'` : IPA辞書のデフォルト表示タイプ
-            - `'neologd'` : mecab-ipadic-NEologdのデフォルト表示タイプ
             - `'unidic'` : UniDicのデフォルト表示タイプ
 
             辞書の出力と表示タイプが一致していない場合、正しく結果を抽出できません。
@@ -189,9 +188,6 @@ class MeCabWrapper:
                                info) > 7 and info[7] not in self.__none_pattern else None,
                            None)
             return ret
-        elif self.__dict_type == 'neologd':
-            raise NotImplementedError(
-                "mecab-ipadic-NEologd辞書のパーサーは未実装です。")
         elif self.__dict_type == 'unidic':
             raise NotImplementedError("UniDic辞書のパーサーは未実装です。")
         else:
