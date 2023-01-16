@@ -1,7 +1,7 @@
-import simple_mecab._version
+import simple_mecab._version as __version
 from simple_mecab.exceptions import *
-from simple_mecab.mecab_wrapper import *
-from simple_mecab.morpheme import *
+from simple_mecab.mecab_wrapper import MeCabWrapper
+from simple_mecab.morpheme import Morpheme
 
-__version__ = simple_mecab._version.version
-__version_tuple__ = simple_mecab._version.version_tuple
+__version__ = __version.version
+__version_tuple__ = __version.version_tuple

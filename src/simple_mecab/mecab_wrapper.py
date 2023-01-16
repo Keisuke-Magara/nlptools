@@ -36,10 +36,18 @@ class MeCabWrapper:
     - 同ライブラリの中の Morpheme dataclass を使用して結果を格納します。
     """
 
-    _none_pattern: List[str] = ['', ' ', '*']  # 該当なしのパターン
+    __none_pattern: List[str] = ['', ' ', '*']  # 該当なしのパターン
+
+    __banned_args = (r'-O',
+                     r'-F', r'--node-format',
+                     r'-U', r'--unk-format',
+                     r'-B', r'--bos-format',
+                     r'-E', r'--eos-format',
+                     r'-S', r'--eon-format',
+                     r'-x', r'--unk-feature')
 
     def __init__(self, args: str = '',
-                 dict_type: Literal['ipadic', 'neologd', 'unidic'] = 'ipadic') -> None:
+                 dict_type: Literal['ipadic', 'unidic'] = 'ipadic') -> None:
         """
         Parameters
         ----------
@@ -47,14 +55,13 @@ class MeCabWrapper:
             MeCabの実行時引数を入力してください。
             ただし以下の引数は入力しないでください。
 
-            `-Owakati`, 出力フォーマットを指定するオプション
+            `-O{文字列}`, 出力フォーマットを指定するオプション
 
             デフォルトは引数なしです。
 
-        dict_type : Literal['ipadic, 'neologd', 'unidic'], optional
+        dict_type : Literal['ipadic, 'unidic'], optional
             MeCabで使用する辞書の表示タイプを選択してください。
             - `'ipadic'` : IPA辞書のデフォルト表示タイプ
-            - `'neologd'` : mecab-ipadic-NEologdのデフォルト表示タイプ
             - `'unidic'` : UniDicのデフォルト表示タイプ
 
             辞書の出力と表示タイプが一致していない場合、正しく結果を抽出できません。
@@ -65,22 +72,17 @@ class MeCabWrapper:
         InvalidArgumentError
             argsに禁止されている引数が存在する場合に発生します。
         """
-        banned_args = (r'-Owakati',
-                       r'-F', r'--node-format',
-                       r'-U', r'--unk-format',
-                       r'-B', r'--bos-format',
-                       r'-E', r'--eos-format',
-                       r'-S', r'--eon-format',
-                       r'-x', r'--unk-feature')
-        banned_pattern = '|'.join(banned_args)
-        if not re.findall(banned_pattern, args):
+        self.__mecab_args = args
+        self.__dict_type = dict_type
+        self.__latest_input = ''
+        invalid_args = self.__are_contained(set(self.__banned_args), args)
+        if not invalid_args:
             self.tagger = MeCab.Tagger(args)
-            self.parse_type = dict_type
         else:
             raise InvalidArgumentError(
-                "対応しない引数がargsに指定されました。\n"
+                f"{', '.join(invalid_args)} がargsに指定されました。\n"
                 "MeCabWrapperのargsでは以下に示す引数を使用することはできません。\n"
-                f"{banned_args}\n"
+                f"{', '.join(self.__banned_args)}\n"
                 "[ヒント] もし分かち書きをしたいのであれば、wakati_gaki関数を使用することができます。")
 
     def parse(self, sentence: str) -> List[Morpheme]:
@@ -89,59 +91,24 @@ class MeCabWrapper:
         Parameters
         ----------
         sentence : str
-            MeCabで解析したい1行の文章
+            MeCabで解析したい日本語の文章
 
         Returns
         -------
         list[Morpheme]
             形態素ごとにそれぞれ Morpheme クラスに情報が格納されています。
-            （アクセス例：`mecab_agent.parse()[0].token`）
-            詳細は Morpheme クラスの DocString を参照してください。
+            （アクセス例：`mecab.parse()[0].token`）
+            詳細は Morpheme クラスの docstring を参照してください。
         """
         result: List[Morpheme] = []
-        if sentence is not None:
-            self.latest_input = sentence
-        parsed_string = self.tagger.parse(self.latest_input)
+        self.__latest_input = sentence
+        parsed_string = self.tagger.parse(self.__latest_input)
         words: List[str] = parsed_string.split('\n')
         words.remove('EOS')
         words.remove('')
         for w in words:
-            result.append(self._extract(w))
+            result.append(self.__extract(w))
         return result
-
-    def _extract(self, parsed_word: str) -> Morpheme:
-        if self.parse_type == 'ipadic':
-            surface, others = parsed_word.split('\t')
-            info = others.split(',')
-            ret = Morpheme(surface,
-                           info[0] if len(
-                               info) > 0 and info[0] not in self._none_pattern else None,
-                           info[1] if len(
-                               info) > 1 and info[1] not in self._none_pattern else None,
-                           info[2] if len(
-                               info) > 2 and info[2] not in self._none_pattern else None,
-                           info[3] if len(
-                               info) > 3 and info[3] not in self._none_pattern else None,
-                           info[4] if len(
-                               info) > 4 and info[4] not in self._none_pattern else None,
-                           info[5] if len(
-                               info) > 5 and info[5] not in self._none_pattern else None,
-                           info[6] if len(
-                               info) > 6 and info[6] not in self._none_pattern else None,
-                           info[7] if len(
-                               info) > 7 and info[7] not in self._none_pattern else None,
-                           None)
-            return ret
-        elif self.parse_type == 'neologd':
-            raise NotImplementedError(
-                "mecab-ipadic-NEologd辞書のパーサーは未実装です。")
-        elif self.parse_type == 'unidic':
-            raise NotImplementedError("UniDic辞書のパーサーは未実装です。")
-        else:
-            surface, feature = parsed_word.split()
-            ret = Morpheme(surface, None, None, None, None,
-                           None, None, None, None, feature)
-            return ret
 
     def wakati_gaki(self, sentence: str) -> str:
         """文を分かち書きして、リストに格納します。
@@ -160,3 +127,71 @@ class MeCabWrapper:
         for e in self.parse(sentence):
             wakati_list.append(e.token)
         return ' '.join(wakati_list)
+
+    @property
+    def latest_input(self) -> str:
+        """最新の入力
+
+        Returns
+        -------
+        str
+            MeCabWrapperのメソッドに最後に入力された文字列を返します。
+        """
+        return self.__latest_input
+
+    @property
+    def dict_type(self) -> str:
+        """辞書タイプ
+
+        Returns
+        -------
+        str
+            MeCabWrapperに指定された辞書タイプの文字列を返します。
+        """
+        return self.__dict_type
+
+    @property
+    def mecab_args(self) -> str:
+        """MeCab引数
+
+        Returns
+        -------
+        str
+            MeCabWrapperに指定されたMeCabの起動時引数を文字列で返します。
+        """
+        return self.__mecab_args
+
+    def __are_contained(self, query_str: set[str], target_str: str):
+        query_re = '|'.join(query_str)
+        return re.findall(query_re, target_str)
+
+    def __extract(self, parsed_word: str) -> Morpheme:
+        if self.__dict_type == 'ipadic':
+            surface, others = parsed_word.split('\t')
+            info = others.split(',')
+            ret = Morpheme(surface,
+                           info[0] if len(
+                               info) > 0 and info[0] not in self.__none_pattern else None,
+                           info[1] if len(
+                               info) > 1 and info[1] not in self.__none_pattern else None,
+                           info[2] if len(
+                               info) > 2 and info[2] not in self.__none_pattern else None,
+                           info[3] if len(
+                               info) > 3 and info[3] not in self.__none_pattern else None,
+                           info[4] if len(
+                               info) > 4 and info[4] not in self.__none_pattern else None,
+                           info[5] if len(
+                               info) > 5 and info[5] not in self.__none_pattern else None,
+                           info[6] if len(
+                               info) > 6 and info[6] not in self.__none_pattern else None,
+                           info[7] if len(
+                               info) > 7 and info[7] not in self.__none_pattern else None,
+                           None)
+            return ret
+        elif self.__dict_type == 'unidic':
+            raise NotImplementedError("UniDic辞書のパーサーは未実装です。")
+        else:
+            surface, feature = parsed_word.split()
+            ret = Morpheme(surface, None, None, None, None,
+                           None, None, None, None, feature)
+            return ret

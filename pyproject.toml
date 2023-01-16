@@ -10,7 +10,7 @@ license = { file = "LICENSE" }
 authors = [
     { name = "Keisuke Magara", email = "Keisuke-Magara.dev@outlook.com" },
 ]
-keywords = ["mecab", "NLP", "morphological_analysis"]
+keywords = ["mecab", "NLP", "morphological-analysis"]
 classifiers = [
     "Programming Language :: Python :: 3.10",
     "Intended Audience :: Science/Research",
