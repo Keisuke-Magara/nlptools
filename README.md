@@ -129,9 +129,9 @@ for r in result:
     print('\n')
 
 # 文を分かち書きする
-wakati_result: str = mecab.wakati_gaki(target_sentence)
+tokenized_string: str = mecab.tokenize(target_sentence, sep=' ')
 print("文をスペース区切りの分かち書きにします。")
-print(wakati_result)
+print(tokenized_string)
 ```
 
 [出力]
