@@ -10,11 +10,11 @@
 
 ## 要件
 - Python 3.7 以上 （`mecab`パッケージが対応しているバージョンのみ）
-- 形態素解析器MeCabとUTF-8辞書がインストール済みで、プログラムからアクセス可能である
+- 形態素解析器MeCabとUTF-8辞書がインストール済みで、プログラムからアクセス可能であること
 - `mecab`パッケージをインストールできる環境にあること  
   （このパッケージをインストールする際に、pipによって`mecab`パッケージが自動的にインストールされます。）  
   - コンピューターにインストールされたMeCabの対応bitとPythonのアーキテクチャが一致していること  
-    （例：MeCab 32bitとPython 32bit, MeCab 64bitとPython 64bit）
+    （例：[MeCab 32bit](https://taku910.github.io/mecab/#download)とPython 32bit, [MeCab 64bit](https://github.com/ikegami-yukino/mecab/releases)とPython 64bit）
   - Pythonのバージョンが`mecab`パッケージの対応バージョンであること  
 
 ## 使い方
@@ -27,7 +27,7 @@ mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type='{dict_type Lit
 
 #### 引数argsについて
 `args`には、通常MeCabをコマンドラインで実行する際に指定する引数を文字列としてそのまま指定できます。ただし、以下の引数は指定することができません。
-- `-Owakati` → [`mecab.wakati_gaki()`関数](#日本語の文を分かち書きする)を使用してください。
+- `-Owakati` → [`mecab.tokenize()`関数](#日本語の文を分かち書きする)を使用してください。
 - `-F`, `-U`, `-B`, `-E`, `-S`, `-x` といった出力フォーマットを指定する引数 → MeCabの出力を自動分類する性質上サポートできません。  
   未知語の推定機能の利用可否の設定は今後追加予定です。
 - `-N {N}` → 今後対応予定です。
@@ -39,8 +39,8 @@ mecab = simple_mecab.MeCabWrapper(args="{MeCab Args}", dict_type='{dict_type Lit
 `dict_type`には以下の文字列のいずれかを指定してください。[**`ipadic`以外はまだ実装されていません。**]
 | dict_type   | 使用辞書                                             |
 | :---------- | :--------------------------------------------------- |
-| ipadic      | IPA辞書, mecab-ipadic-NEologd辞書 or 出力形式が同様の辞書                      |
-| ~~unidic~~  | ~~UniDic辞書 or 出力形式が同様の辞書~~ (version 2.0で対応予定)              |
+| ipadic      | [IPADic](http://manual.freeshell.org/chasen/ipadic-ja.pdf), [mecab-ipadic-NEologd](https://github.com/neologd/mecab-ipadic-neologd) or 出力形式が同様の辞書                      |
+| ~~unidic~~  | ~~[UniDic](https://clrd.ninjal.ac.jp/unidic/) or 出力形式が同様の辞書~~ (version 2.0で対応予定)              |
 
 何も指定しないと`ipadic`が使用されます。
 
@@ -54,16 +54,16 @@ result = mecab.parse("文")
 形態素解析結果は各形態素のlist形式になっていて、それぞれの要素は形態素の`Morpheme`クラスのインスタンスです。
 
 #### Morphemeクラスの構成
-`Morpheme`クラスはPythonの`dataclass`として定義されており、形態素とその属性が格納されています。
+`Morpheme`クラスはPythonの`NamedTuple`として定義されており、形態素とその属性が格納されています。
 
 例えば変数`r`にある形態素の`Morpheme`クラスのインスタンスが格納されているとき、
 ```
-{MeCabの項目の値} = r.{Morphemeのproperty}
+{MeCabの項目の値} = r.{Morphemeのfield}
 ```
 で、属性の値を知ることができます。
 
 サポートされている属性は以下のとおりです。
-| MeCabの項目    | Morphemeのproperty | propertyのtype         | 出力例                                 | 
+| MeCabの項目    | Morphemeのfield | fieldのtype         | 出力例                                 | 
 | -------------- | ------------------ | ---------------------- | -------------------------------------- | 
 | 形態素の文字列 | token              | `str`                  | '東京', '行っ'                         | 
 | 品詞           | pos0               | `str` or `None`        | '名詞', '動詞'                         | 
@@ -81,7 +81,7 @@ result = mecab.parse("文")
 それ以外の属性は、存在するときはその値の文字列、存在しない場合には`None`が格納されます。
 
 `pronunciation`のみ、発音が1つしかない場合でもタプルが格納されるため、`r.pronunciation[0]`などでアクセスしてください。  
-（IPA辞書の場合、MeCabの出力した発音2種がどちらも異なる場合にのみ、タプルの要素が2つになります。）
+（IPADicの場合、MeCabの出力した発音2種がどちらも異なる場合にのみ、タプルの要素が2つになります。）
 
 `unknown`にはMeCabの出力を正しく分類できなかった際に、MeCabの出力結果が文字列としてそのまま格納されます。通常は`None`です。MeCabの辞書を正しく分類するために、[`dict_type`](#引数dict_typeについて)は正しく指定してください。
 
@@ -89,11 +89,13 @@ result = mecab.parse("文")
 ### 日本語の文を分かち書きする
 このパッケージではMeCab標準の`-Owakati`を用いた分かち書きを使用することができません。代わりに、
 ```python
-wakati_result = mecab.wakati_gaki("文")
+wakati_gaki_str = mecab.tokenize("文")
 ```
 によって文を形態素ごとに分割できます。
 
-`wakati_result`はそれぞれの形態素をスペースで区切った文字列になっています。
+`wakati_gaki_str`はそれぞれの形態素をスペースで区切った文字列になっています。
+
+分かち書きの際の区切り文字は、`tokenize`関数の第2引数`sep`で指定することも可能です。
 
 
 ## 例外

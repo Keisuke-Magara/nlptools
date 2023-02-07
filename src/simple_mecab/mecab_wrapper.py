@@ -3,7 +3,7 @@ from typing import List, Literal
 
 import MeCab
 
-from simple_mecab.exceptions import InvalidArgumentError
+from simple_mecab.exceptions import InvalidArgumentError, deprecated
 from simple_mecab.morpheme import Morpheme
 
 
@@ -12,19 +12,8 @@ class MeCabWrapper:
 
     Features
     --------
-    - MeCabの処理結果をdataclassに格納し、アクセスしやすくしています。
-
-    - EOSや空文字('')の除去を行っています。
-
-
-    Attributes
-    ----------
-    multiple_instance : bool
-        `True` に設定すると、通常通りインスタンスを複数作成できます。
-
-        `False` に設定すると、何度インスタンス生成を行っても同じインスタンスを使用します。
-
-        デフォルトは `False` です。
+    MeCabの処理結果をNamedTupleに格納し、辞書の種類によらず統一したアクセス方法
+    でアクセスできます。
 
 
     Dependencies
@@ -33,7 +22,7 @@ class MeCabWrapper:
 
     - `mecab-python3` ライブラリがインストールされている必要があります。
 
-    - 同ライブラリの中の Morpheme dataclass を使用して結果を格納します。
+    - 同ライブラリの中の Morpheme NamedTuple を使用して結果を返戻します。
     """
 
     __none_pattern: List[str] = ['', ' ', '*']  # 該当なしのパターン
@@ -76,6 +65,8 @@ class MeCabWrapper:
         self.__dict_type = dict_type
         self.__latest_input = ''
         invalid_args = self.__are_contained(set(self.__banned_args), args)
+        self.wakati_gaki = deprecated(
+            self.tokenize, "wakati_gaki関数は非推奨です。代わりにtokenize関数を使用してください")  # todo: remove func
         if not invalid_args:
             self.tagger = MeCab.Tagger(args)
         else:
@@ -83,7 +74,7 @@ class MeCabWrapper:
                 f"{', '.join(invalid_args)} がargsに指定されました。\n"
                 "MeCabWrapperのargsでは以下に示す引数を使用することはできません。\n"
                 f"{', '.join(self.__banned_args)}\n"
-                "[ヒント] もし分かち書きをしたいのであれば、wakati_gaki関数を使用することができます。")
+                "[ヒント] もし分かち書きをしたいのであれば、tokenize関数を使用することができます。")
 
     def parse(self, sentence: str) -> List[Morpheme]:
         """日本語の文字列をMeCabで解析します。
@@ -110,7 +101,7 @@ class MeCabWrapper:
             result.append(self.__extract(w))
         return result
 
-    def wakati_gaki(self, sentence: str) -> str:
+    def tokenize(self, sentence: str, sep: str = ' ') -> str:
         """文を分かち書きして、リストに格納します。
 
         Parameters
@@ -118,15 +109,16 @@ class MeCabWrapper:
         sentence : str
             分かち書きしたい文（一文）
 
+        sep : str
+            分かち書きする際の各形態素間の区切り文字
+            （デフォルトは `' '`)
+
         Returns
         -------
         list[str]
             分かち書きされた形態素のリスト
         """
-        wakati_list: List[str] = []
-        for e in self.parse(sentence):
-            wakati_list.append(e.token)
-        return ' '.join(wakati_list)
+        return sep.join([e.token for e in self.parse(sentence)])
 
     @property
     def latest_input(self) -> str:
